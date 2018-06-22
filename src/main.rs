@@ -207,13 +207,10 @@
 #![cfg_attr(feature = "lints", allow(unstable_features))]
 #![cfg_attr(feature = "lints", deny(warnings))]
 #![cfg_attr(not(any(feature = "nightly", feature = "unstable")), deny(unstable_features))]
-#![deny(missing_docs,
-        missing_debug_implementations,
-        missing_copy_implementations,
-        trivial_casts, trivial_numeric_casts,
-        unsafe_code,
-        unused_import_braces,
-        unused_qualifications)]
+#![deny(
+    missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
+    trivial_numeric_casts, unsafe_code, unused_import_braces, unused_qualifications
+)]
 
 extern crate toml;
 #[macro_use]
@@ -227,23 +224,24 @@ use std::path::Path;
 
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
-use error::CliResult;
 use config::Config;
+use error::CliResult;
 use project::Project;
 
 #[macro_use]
 mod macros;
-mod error;
-mod graph;
-mod fmt;
-mod project;
-mod dep;
 mod config;
+mod dep;
+mod error;
+mod fmt;
+mod graph;
+mod project;
 mod util;
 
 static LINE_STYLES: [&'static str; 3] = ["solid", "dotted", "dashed"];
-static COLORS: [&'static str; 8] = ["blue", "black", "yellow", "purple", "green", "red", "white",
-                                    "orange"];
+static COLORS: [&'static str; 8] = [
+    "blue", "black", "yellow", "purple", "green", "red", "white", "orange",
+];
 static DEP_SHAPES: [&'static str; 4] = ["box", "round", "diamond", "triangle"];
 
 fn parse_cli<'a>() -> ArgMatches<'a> {
