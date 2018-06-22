@@ -19,10 +19,7 @@ pub struct DeclaredDep {
 
 impl DeclaredDep {
     pub fn with_kind(name: String, kind: DepKind) -> Self {
-        DeclaredDep {
-            name: name,
-            kind: kind,
-        }
+        DeclaredDep { name, kind }
     }
 }
 
@@ -40,8 +37,8 @@ pub struct ResolvedDep {
 impl ResolvedDep {
     pub fn new(name: String, ver: String) -> Self {
         ResolvedDep {
-            name: name,
-            ver: ver,
+            name,
+            ver,
             is_normal: false,
             is_build: false,
             is_optional: false,

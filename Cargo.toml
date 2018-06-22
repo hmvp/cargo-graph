@@ -23,14 +23,10 @@ name = "cargo-graph"
 toml = "~0.2.1"
 clap = "~2.11.3"
 ansi_term = { version = "~0.9", optional = true }
-clippy    = { version = "=0.0.88", optional = true }
 log = "0.4.2"
 simplelog = "0.5.2"
 
 [features]
 default = ["color"]
 color = ["ansi_term"]
-unstable = ["lints"]
-lints = ["nightly", "clippy"]
-nightly = []
 debug = []

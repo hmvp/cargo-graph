@@ -20,14 +20,8 @@ debug TEST:
 run-tests:
 	cargo test --features "yaml unstable"
 
-nightly:
-	rustup override add nightly
-
-rm-nightly:
-	rustup override remove
-
-@lint: nightly
-	cargo build --features lints && just rm-nightly
+@lint
+	cargo +nightly clippy
 
 clean:
 	cargo clean

@@ -18,7 +18,7 @@ where
 
 impl<'c, 'o> Project<'c, 'o> {
     pub fn with_config(cfg: &'c Config<'o>) -> CliResult<Self> {
-        Ok(Project { cfg: cfg })
+        Ok(Project { cfg })
     }
 
     pub fn graph(mut self) -> CliResult<DepGraph<'c, 'o>> {
@@ -90,7 +90,7 @@ impl<'c, 'o> Project<'c, 'o> {
         dg.nodes[0].is_normal = true;
 
         dg.edges.sort(); // make sure to process edges from the root node first
-        for ed in dg.edges.iter() {
+        for ed in &mut dg.edges {
             if ed.0 == 0 {
                 // If this is an edge from the root node,
                 // set the kind based on how the dependency is declared in the manifest file.
@@ -228,7 +228,7 @@ impl<'c, 'o> Project<'c, 'o> {
 
         if let Some(table) = manifest_toml.get("dependencies") {
             if let Some(table) = table.as_table() {
-                for (name, dep_table) in table.into_iter() {
+                for (name, dep_table) in table {
                     if let Some(&Value::Boolean(true)) = dep_table.lookup("optional") {
                         declared_deps.push(DeclaredDep::with_kind(name.clone(), DepKind::Optional));
                     } else {
@@ -241,7 +241,7 @@ impl<'c, 'o> Project<'c, 'o> {
 
         if let Some(table) = manifest_toml.get("dev-dependencies") {
             if let Some(table) = table.as_table() {
-                for (name, _) in table.into_iter() {
+                for name in table.keys() {
                     declared_deps.push(DeclaredDep::with_kind(name.clone(), DepKind::Dev));
                     v.push(name.clone());
                 }
@@ -250,7 +250,7 @@ impl<'c, 'o> Project<'c, 'o> {
 
         if let Some(table) = manifest_toml.get("build-dependencies") {
             if let Some(table) = table.as_table() {
-                for (name, _) in table.into_iter() {
+                for name in table.keys() {
                     declared_deps.push(DeclaredDep::with_kind(name.clone(), DepKind::Build));
                     v.push(name.clone());
                 }

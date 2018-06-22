@@ -200,13 +200,7 @@
 //! ## Dependencies Tree
 //! ![cargo-graph dependencies](cargo-graph.png)
 
-#![cfg_attr(feature = "nightly", feature(plugin))]
-#![cfg_attr(feature = "lints", plugin(clippy))]
-#![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
-#![cfg_attr(feature = "lints", allow(should_implement_trait))]
-#![cfg_attr(feature = "lints", allow(unstable_features))]
-#![cfg_attr(feature = "lints", deny(warnings))]
-#![cfg_attr(not(any(feature = "nightly", feature = "unstable")), deny(unstable_features))]
+#![cfg_attr(feature = "cargo-clippy", deny(warnings))]
 #![deny(
     missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
     trivial_numeric_casts, unsafe_code, unused_import_braces, unused_qualifications
@@ -333,11 +327,11 @@ fn main() {
     if let Some(m) = m.subcommand_matches("graph") {
         let cfg = Config::from_matches(m).unwrap_or_else(|e| e.exit());
         debug!("cfg={:#?}", cfg);
-        execute(cfg).map_err(|e| e.exit()).unwrap();
+        execute(&cfg).map_err(|e| e.exit()).unwrap();
     }
 }
 
-fn execute(cfg: Config) -> CliResult<()> {
+fn execute(cfg: &Config) -> CliResult<()> {
     let project = try!(Project::with_config(&cfg));
     let graph = try!(project.graph());
 
@@ -357,7 +351,7 @@ fn execute(cfg: Config) -> CliResult<()> {
 
 fn is_file(s: String) -> Result<(), String> {
     let p = Path::new(&*s);
-    if let None = p.file_name() {
+    if p.file_name().is_none() {
         return Err(format!("'{}' doesn't appear to be a valid file name", &*s));
     }
     Ok(())

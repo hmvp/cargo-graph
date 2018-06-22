@@ -37,7 +37,7 @@ impl From<CliErrorKind> for CliError {
     fn from(kind: CliErrorKind) -> Self {
         CliError {
             error: format!("{} {}", Format::Error("error:"), kind.description()),
-            kind: kind,
+            kind,
         }
     }
 }

@@ -21,7 +21,7 @@ pub fn toml_from_file<P: AsRef<Path>>(p: P) -> CliResult<Box<Table>> {
 
     // On err
     let mut error_str = String::from("could not parse input as TOML\n");
-    for error in parser.errors.iter() {
+    for error in &parser.errors {
         let (loline, locol) = parser.to_linecol(error.lo);
         let (hiline, hicol) = parser.to_linecol(error.hi);
         error_str.push_str(&format!(
@@ -53,7 +53,7 @@ pub fn find_manifest_file(file: &str) -> CliResult<PathBuf> {
 
         let pwd2 = pwd.clone();
         let parent = pwd2.parent();
-        if let None = parent {
+        if parent.is_none() {
             break;
         }
         pwd = parent.unwrap().to_path_buf();

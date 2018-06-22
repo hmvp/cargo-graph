@@ -1,4 +1,3 @@
-use std::ascii::AsciiExt;
 use std::fmt;
 
 use clap::ArgMatches;
@@ -129,7 +128,7 @@ pub struct Config<'a> {
 }
 
 impl<'a> Config<'a> {
-    #[cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
+    #[cfg_attr(feature = "cargo-clippy", allow(cyclomatic_complexity))]
     pub fn from_matches(m: &'a ArgMatches) -> CliResult<Self> {
         Ok(Config {
             lock_file: m.value_of("lock-file").unwrap_or("Cargo.lock"),

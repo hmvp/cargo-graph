@@ -60,7 +60,7 @@ impl<'c, 'o> DepGraph<'c, 'o> {
         DepGraph {
             nodes: vec![],
             edges: vec![],
-            cfg: cfg,
+            cfg,
         }
     }
 
@@ -136,7 +136,7 @@ impl<'c, 'o> DepGraph<'c, 'o> {
                     // Remove edges originating from the removed node
                     self.edges.retain(|&Ed(origin, _)| origin != id);
                     // Adjust edges to match the new node indexes
-                    for edge in self.edges.iter_mut() {
+                    for edge in &mut self.edges {
                         if edge.0 > id {
                             edge.0 -= 1;
                         }
@@ -194,7 +194,7 @@ impl<'c, 'o> DepGraph<'c, 'o> {
         self.nodes.swap(0, root_id);
 
         // Adjust edges
-        for edge in self.edges.iter_mut() {
+        for edge in &mut self.edges {
             if edge.0 == 0 {
                 edge.0 = root_id;
             } else if edge.0 == root_id {
@@ -234,7 +234,7 @@ impl<'c, 'o> DepGraph<'c, 'o> {
         self.remove_orphans();
         self.remove_self_pointing();
         debug!("dg={:#?}", self);
-        try!(writeln!(output, "{}", "digraph dependencies {"));
+        try!(writeln!(output, "digraph dependencies {{"));
         for (i, dep) in self.nodes.iter().enumerate() {
             try!(write!(output, "\tN{}", i));
             try!(dep.label(output, self.cfg));
@@ -243,7 +243,7 @@ impl<'c, 'o> DepGraph<'c, 'o> {
             try!(write!(output, "\t{}", ed));
             try!(ed.label(output, &self));
         }
-        try!(writeln!(output, "{}", "}"));
+        try!(writeln!(output, "}}"));
         Ok(())
     }
 }
