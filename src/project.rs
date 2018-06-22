@@ -87,7 +87,7 @@ impl<'c, 'o> Project<'c, 'o> {
             .map(|dd| (&*dd.name, dd.kind))
             .collect::<HashMap<_, _>>();
 
-        dg.nodes[0].is_build = true;
+        dg.nodes[0].is_normal = true;
 
         dg.edges.sort(); // make sure to process edges from the root node first
         for ed in dg.edges.iter() {
@@ -96,6 +96,7 @@ impl<'c, 'o> Project<'c, 'o> {
                 // set the kind based on how the dependency is declared in the manifest file.
                 if let Some(kind) = declared_deps_map.get(&*dg.nodes[ed.1].name) {
                     match *kind {
+                        DepKind::Normal => dg.nodes[ed.1].is_normal = true,
                         DepKind::Build => dg.nodes[ed.1].is_build = true,
                         DepKind::Dev => dg.nodes[ed.1].is_dev = true,
                         DepKind::Optional => dg.nodes[ed.1].is_optional = true,
@@ -108,6 +109,10 @@ impl<'c, 'o> Project<'c, 'o> {
                 // and the kind of dependency may vary based on the path to that dependency.
                 // The flags start at false, and once they become true, they stay true.
                 // ResolvedDep::kind() will pick a kind based on their priority.
+                if dg.nodes[ed.0].is_normal {
+                    dg.nodes[ed.1].is_normal = true;
+                }
+
                 if dg.nodes[ed.0].is_build {
                     dg.nodes[ed.1].is_build = true;
                 }
@@ -126,8 +131,9 @@ impl<'c, 'o> Project<'c, 'o> {
         // Start at 1 to keep the root node.
         for id in (1..dg.nodes.len()).rev() {
             let kind = dg.nodes[id].kind();
-            if (kind == DepKind::Build && !self.cfg.build_deps)
+            if (kind == DepKind::Normal && !self.cfg.normal_deps)
                 || (kind == DepKind::Dev && !self.cfg.dev_deps)
+                || (kind == DepKind::Build && !self.cfg.build_deps)
                 || (kind == DepKind::Optional && !self.cfg.optional_deps)
             {
                 dg.remove(id);
@@ -226,7 +232,7 @@ impl<'c, 'o> Project<'c, 'o> {
                     if let Some(&Value::Boolean(true)) = dep_table.lookup("optional") {
                         declared_deps.push(DeclaredDep::with_kind(name.clone(), DepKind::Optional));
                     } else {
-                        declared_deps.push(DeclaredDep::with_kind(name.clone(), DepKind::Build));
+                        declared_deps.push(DeclaredDep::with_kind(name.clone(), DepKind::Normal));
                     }
                     v.push(name.clone());
                 }
@@ -237,6 +243,15 @@ impl<'c, 'o> Project<'c, 'o> {
             if let Some(table) = table.as_table() {
                 for (name, _) in table.into_iter() {
                     declared_deps.push(DeclaredDep::with_kind(name.clone(), DepKind::Dev));
+                    v.push(name.clone());
+                }
+            }
+        }
+
+        if let Some(table) = manifest_toml.get("build-dependencies") {
+            if let Some(table) = table.as_table() {
+                for (name, _) in table.into_iter() {
+                    declared_deps.push(DeclaredDep::with_kind(name.clone(), DepKind::Build));
                     v.push(name.clone());
                 }
             }

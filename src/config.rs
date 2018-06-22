@@ -113,12 +113,15 @@ pub struct Config<'a> {
     pub lock_file: &'a str,
     pub manifest_file: &'a str,
     pub dot_file: Option<&'a str>,
+    pub normal_lines: LineStyle,
     pub dev_lines: LineStyle,
     pub build_lines: LineStyle,
     pub optional_lines: LineStyle,
+    pub normal_deps: bool,
     pub dev_deps: bool,
     pub build_deps: bool,
     pub optional_deps: bool,
+    pub normal_style: DepStyle,
     pub build_style: DepStyle,
     pub dev_style: DepStyle,
     pub optional_style: DepStyle,
@@ -132,8 +135,9 @@ impl<'a> Config<'a> {
             lock_file: m.value_of("lock-file").unwrap_or("Cargo.lock"),
             manifest_file: m.value_of("manifest-file").unwrap_or("Cargo.toml"),
             dot_file: m.value_of("dot-file"),
+            normal_deps: try!(m.value_of("normal-deps").unwrap_or("true").parse_arg()),
             dev_deps: try!(m.value_of("dev-deps").unwrap_or("false").parse_arg()),
-            build_deps: try!(m.value_of("build-deps").unwrap_or("true").parse_arg()),
+            build_deps: try!(m.value_of("build-deps").unwrap_or("false").parse_arg()),
             optional_deps: try!(m.value_of("optional-deps").unwrap_or("true").parse_arg()),
             build_lines: LineStyle(
                 value_t!(m.value_of("build-line-style"), DotLineShape)
@@ -149,6 +153,11 @@ impl<'a> Config<'a> {
                 value_t!(m.value_of("dev-line-style"), DotLineShape).unwrap_or(DotLineShape::Solid),
                 value_t!(m.value_of("dev-line-color"), DotColor).unwrap_or(DotColor::Black),
             ),
+            normal_lines: LineStyle(
+                value_t!(m.value_of("normal-line-style"), DotLineShape)
+                    .unwrap_or(DotLineShape::Solid),
+                value_t!(m.value_of("normal-line-color"), DotColor).unwrap_or(DotColor::Black),
+            ),
             build_style: DepStyle(
                 value_t!(m.value_of("build-shape"), DotShape).unwrap_or(DotShape::Round),
                 value_t!(m.value_of("build-color"), DotColor).unwrap_or(DotColor::Black),
@@ -160,6 +169,10 @@ impl<'a> Config<'a> {
             dev_style: DepStyle(
                 value_t!(m.value_of("dev-shape"), DotShape).unwrap_or(DotShape::Round),
                 value_t!(m.value_of("dev-color"), DotColor).unwrap_or(DotColor::Black),
+            ),
+            normal_style: DepStyle(
+                value_t!(m.value_of("normal-shape"), DotShape).unwrap_or(DotShape::Round),
+                value_t!(m.value_of("normal-color"), DotColor).unwrap_or(DotColor::Black),
             ),
             include_vers: m.is_present("include-versions"),
         })

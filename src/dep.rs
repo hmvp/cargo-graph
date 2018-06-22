@@ -4,6 +4,7 @@ use config::Config;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum DepKind {
+    Normal,
     Build,
     Dev,
     Optional,
@@ -29,6 +30,7 @@ impl DeclaredDep {
 pub struct ResolvedDep {
     pub name: String,
     pub ver: String,
+    pub is_normal: bool,
     pub is_build: bool,
     pub is_optional: bool,
     pub is_dev: bool,
@@ -40,6 +42,7 @@ impl ResolvedDep {
         ResolvedDep {
             name: name,
             ver: ver,
+            is_normal: false,
             is_build: false,
             is_optional: false,
             is_dev: false,
@@ -48,10 +51,12 @@ impl ResolvedDep {
     }
 
     pub fn kind(&self) -> DepKind {
-        if self.is_build {
-            DepKind::Build
+        if self.is_normal {
+            DepKind::Normal
         } else if self.is_dev {
             DepKind::Dev
+        } else if self.is_build {
+            DepKind::Build
         } else if self.is_optional {
             DepKind::Optional
         } else {
@@ -66,9 +71,11 @@ impl ResolvedDep {
             self.name.clone()
         };
         match self.kind() {
+            DepKind::Normal => writeln!(w, "[label={:?}{}];", name, c.normal_style),
             DepKind::Dev => writeln!(w, "[label={:?}{}];", name, c.dev_style),
             DepKind::Optional => writeln!(w, "[label={:?}{}];", name, c.optional_style),
-            _ => writeln!(w, "[label={:?}{}];", name, c.build_style),
+            DepKind::Build => writeln!(w, "[label={:?}{}];", name, c.build_style),
+            _ => writeln!(w, "[label={:?}{}];", name, c.normal_style),
         }
     }
 }

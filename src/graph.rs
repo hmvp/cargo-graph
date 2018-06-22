@@ -12,20 +12,27 @@ pub struct Ed(pub Nd, pub Nd);
 
 impl Ed {
     pub fn label<W: Write>(&self, w: &mut W, dg: &DepGraph) -> io::Result<()> {
-        use dep::DepKind::{Build, Dev, Optional};
+        use dep::DepKind::{Build, Dev, Normal, Optional};
         let parent = dg.get(self.0).unwrap().kind();
         let child = dg.get(self.1).unwrap().kind();
 
         match (parent, child) {
-            (Build, Build) => writeln!(w, "[label=\"\"{}];", dg.cfg.build_lines),
-            (Build, Dev) => writeln!(w, "[label=\"\"{}];", dg.cfg.dev_lines),
-            (Build, Optional) => writeln!(w, "[label=\"\"{}];", dg.cfg.optional_lines),
-            (Optional, Build) => writeln!(w, "[label=\"\"{}];", dg.cfg.optional_lines),
+            (Normal, Normal) => writeln!(w, "[label=\"\"{}];", dg.cfg.normal_lines),
+            (Normal, Dev) => writeln!(w, "[label=\"\"{}];", dg.cfg.dev_lines),
+            (Normal, Build) => writeln!(w, "[label=\"\"{}];", dg.cfg.build_lines),
+            (Normal, Optional) => writeln!(w, "[label=\"\"{}];", dg.cfg.optional_lines),
+            (Optional, Normal) => writeln!(w, "[label=\"\"{}];", dg.cfg.optional_lines),
             (Optional, Dev) => writeln!(w, "[label=\"\"{}];", dg.cfg.optional_lines),
+            (Optional, Build) => writeln!(w, "[label=\"\"{}];", dg.cfg.optional_lines),
             (Optional, Optional) => writeln!(w, "[label=\"\"{}];", dg.cfg.optional_lines),
-            (Dev, Build) => writeln!(w, "[label=\"\"{}];", dg.cfg.dev_lines),
+            (Dev, Normal) => writeln!(w, "[label=\"\"{}];", dg.cfg.dev_lines),
             (Dev, Dev) => writeln!(w, "[label=\"\"{}];", dg.cfg.dev_lines),
+            (Dev, Build) => writeln!(w, "[label=\"\"{}];", dg.cfg.dev_lines),
             (Dev, Optional) => writeln!(w, "[label=\"\"{}];", dg.cfg.dev_lines),
+            (Build, Normal) => writeln!(w, "[label=\"\"{}];", dg.cfg.build_lines),
+            (Build, Dev) => writeln!(w, "[label=\"\"{}];", dg.cfg.build_lines),
+            (Build, Build) => writeln!(w, "[label=\"\"{}];", dg.cfg.build_lines),
+            (Build, Optional) => writeln!(w, "[label=\"\"{}];", dg.cfg.build_lines),
             _ => writeln!(w, "[label=\"\"];"),
         }
     }
