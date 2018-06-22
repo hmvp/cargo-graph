@@ -217,6 +217,9 @@ extern crate toml;
 extern crate clap;
 #[cfg(feature = "color")]
 extern crate ansi_term;
+#[macro_use]
+extern crate log;
+extern crate simplelog;
 
 use std::fs::File;
 use std::io::{self, BufWriter};
@@ -228,8 +231,6 @@ use config::Config;
 use error::CliResult;
 use project::Project;
 
-#[macro_use]
-mod macros;
 mod config;
 mod dep;
 mod error;
@@ -305,13 +306,20 @@ fn parse_cli<'a>() -> ArgMatches<'a> {
         .get_matches()
 }
 
+#[cfg(not(feature = "debug"))]
+const LOG_LEVEL: simplelog::LevelFilter = simplelog::LevelFilter::Warn;
+#[cfg(feature = "debug")]
+const LOG_LEVEL: simplelog::LevelFilter = simplelog::LevelFilter::Debug;
+
 fn main() {
-    debugln!("parsing cli...");
+    simplelog::TermLogger::init(LOG_LEVEL, simplelog::Config::default()).unwrap();
+
+    debug!("parsing cli...");
     let m = parse_cli();
 
     if let Some(m) = m.subcommand_matches("graph") {
         let cfg = Config::from_matches(m).unwrap_or_else(|e| e.exit());
-        debugln!("cfg={:#?}", cfg);
+        debug!("cfg={:#?}", cfg);
         execute(cfg).map_err(|e| e.exit()).unwrap();
     }
 }

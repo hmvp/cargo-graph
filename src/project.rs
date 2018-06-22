@@ -186,14 +186,14 @@ impl<'c, 'o> Project<'c, 'o> {
             }
         }
 
-        debugln!("return=parse_lock_file; self={:#?}", self);
-        debugln!("return=parse_lock_file; dg={:#?}", dg);
+        debug!("return=parse_lock_file; self={:#?}", self);
+        debug!("return=parse_lock_file; dg={:#?}", dg);
         Ok(dg)
     }
 
     /// Builds a list of the dependencies declared in the manifest file.
     pub fn parse_root_deps(&mut self) -> CliResult<(Vec<DeclaredDep>, String, String)> {
-        debugln!("executing; parse_root_deps;");
+        debug!("executing; parse_root_deps;");
         let manifest_path = try!(util::find_manifest_file(self.cfg.manifest_file));
         let manifest_toml = try!(util::toml_from_file(manifest_path));
 
@@ -242,9 +242,9 @@ impl<'c, 'o> Project<'c, 'o> {
             }
         }
 
-        debugln!("return=parse_root_deps; self={:#?}", self);
-        debugln!("return=parse_root_deps; declared_deps={:#?}", declared_deps);
-        debugln!("return=parse_root_deps; root_name={:#?}", root_name);
+        debug!("return=parse_root_deps; self={:#?}", self);
+        debug!("return=parse_root_deps; declared_deps={:#?}", declared_deps);
+        debug!("return=parse_root_deps; root_name={:#?}", root_name);
         Ok((declared_deps, root_name, root_version))
     }
 }

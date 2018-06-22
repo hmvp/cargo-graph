@@ -8,7 +8,7 @@ use toml::{self, Table};
 use error::{CliErrorKind, CliResult};
 
 pub fn toml_from_file<P: AsRef<Path>>(p: P) -> CliResult<Box<Table>> {
-    debugln!("executing; from_file; file={:?}", p.as_ref());
+    debug!("executing; from_file; file={:?}", p.as_ref());
     let mut f = try!(File::open(p.as_ref()));
 
     let mut s = String::new();

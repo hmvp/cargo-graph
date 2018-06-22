@@ -71,7 +71,7 @@ impl<'c, 'o> DepGraph<'c, 'o> {
     }
 
     pub fn remove(&mut self, id: usize) {
-        debugln!("remove; index={}", id);
+        debug!("remove; index={}", id);
         self.nodes.remove(id);
         // Remove edges of the removed node.
         self.edges = self
@@ -110,20 +110,20 @@ impl<'c, 'o> DepGraph<'c, 'o> {
     pub fn remove_orphans(&mut self) {
         let len = self.nodes.len();
         self.edges.retain(|&Ed(idl, idr)| idl < len && idr < len);
-        debugln!("remove_orphans; nodes={:?}", self.nodes);
+        debug!("remove_orphans; nodes={:?}", self.nodes);
         loop {
             let mut removed = false;
             let mut used = vec![false; self.nodes.len()];
             used[0] = true;
             for &Ed(_, idr) in &self.edges {
-                debugln!("remove_orphans; idr={}", idr);
+                debug!("remove_orphans; idr={}", idr);
                 used[idr] = true;
             }
-            debugln!("remove_orphans; unused_nodes={:?}", used);
+            debug!("remove_orphans; unused_nodes={:?}", used);
 
             for (id, &u) in used.iter().enumerate() {
                 if !u {
-                    debugln!("remove_orphans; removing={}", id);
+                    debug!("remove_orphans; removing={}", id);
                     self.nodes.remove(id);
 
                     // Remove edges originating from the removed node
@@ -158,11 +158,11 @@ impl<'c, 'o> DepGraph<'c, 'o> {
                     break;
                 }
             }
-            debugln!("remove_self_pointing; self_pointing={:?}", self_p);
+            debug!("remove_self_pointing; self_pointing={:?}", self_p);
 
             for (id, &u) in self_p.iter().enumerate() {
                 if u {
-                    debugln!("remove_self_pointing; removing={}", id);
+                    debug!("remove_self_pointing; removing={}", id);
                     self.edges.remove(id);
                     break;
                 }
@@ -221,12 +221,12 @@ impl<'c, 'o> DepGraph<'c, 'o> {
     }
 
     pub fn render_to<W: Write>(mut self, output: &mut W) -> CliResult<()> {
-        debugln!("exec=render_to;");
+        debug!("exec=render_to;");
         self.edges.sort();
         self.edges.dedup();
         self.remove_orphans();
         self.remove_self_pointing();
-        debugln!("dg={:#?}", self);
+        debug!("dg={:#?}", self);
         try!(writeln!(output, "{}", "digraph dependencies {"));
         for (i, dep) in self.nodes.iter().enumerate() {
             try!(write!(output, "\tN{}", i));

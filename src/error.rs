@@ -65,7 +65,7 @@ impl CliError {
     /// is printed to stderr and the exit status will be `1`.
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
-            wlnerr!("{}", self);
+            eprintln!("{}", self);
             ::std::process::exit(1)
         }
         println!("{}", self);
